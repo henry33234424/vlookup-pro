@@ -10,9 +10,24 @@ MODEL_NAME = "BAAI/bge-base-zh-v1.5"
 APP_NAME = "VLookupPro"
 
 
+def _get_bundled_model_path():
+    """检查是否有打包在 EXE 内的模型"""
+    # PyInstaller 打包后 sys._MEIPASS 指向临时解压目录
+    if hasattr(sys, '_MEIPASS'):
+        base = sys._MEIPASS
+    else:
+        base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+    model_dir_name = MODEL_NAME.replace("/", "_")
+    bundled_path = os.path.join(base, "models", model_dir_name)
+    if os.path.exists(bundled_path) and os.path.isfile(os.path.join(bundled_path, "config.json")):
+        logger.info(f"找到内置模型: {bundled_path}")
+        return bundled_path
+    return None
+
+
 def get_cache_dir():
     """获取模型缓存目录，检查多个可能的缓存位置"""
-    # 候选缓存路径
     candidates = []
 
     # 1. 应用专属缓存目录
@@ -47,9 +62,18 @@ def get_cache_dir():
 
 
 def load_model():
-    """加载 sentence-transformers 模型"""
+    """加载 sentence-transformers 模型（优先使用内置模型）"""
     from sentence_transformers import SentenceTransformer
 
+    # 优先使用打包在 EXE 内的模型
+    bundled = _get_bundled_model_path()
+    if bundled:
+        logger.info(f"正在从内置路径加载模型: {bundled}")
+        model = SentenceTransformer(bundled)
+        logger.info("模型加载完成")
+        return model
+
+    # 回退到缓存/在线下载
     cache_dir = get_cache_dir()
     logger.info(f"正在加载模型 {MODEL_NAME} ...")
     model = SentenceTransformer(MODEL_NAME, cache_folder=cache_dir)
