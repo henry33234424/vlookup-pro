@@ -2,8 +2,12 @@ name: Build Windows EXE
 
 on:
   push:
-    branches: [main]
+    tags:
+      - 'v*'
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build-windows:
@@ -49,9 +53,12 @@ jobs:
             src/main.py
         shell: cmd
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Compress for release
+        run: Compress-Archive -Path dist/VLookupPro -DestinationPath VLookupPro-Windows.zip
+        shell: pwsh
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: VLookupPro-Windows
-          path: dist/VLookupPro/
-          retention-days: 30
+          files: VLookupPro-Windows.zip
+          generate_release_notes: true

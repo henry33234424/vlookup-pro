@@ -28,7 +28,9 @@
 
 ### 方式一：下载 Windows EXE（推荐）
 
-前往 [GitHub Actions](../../actions) 页面，点击最新的成功构建，下载 `VLookupPro-Windows` artifact 并解压运行。
+前往 [Releases](../../releases/latest) 页面，下载 `VLookupPro-Windows.zip`，解压后双击 `VLookupPro.exe` 即可运行。
+
+AI 模型已内置，无需联网，开箱即用。
 
 ### 方式二：从源码运行
 
@@ -97,8 +99,8 @@ vlookup_pro/
 
 ## 注意事项
 
-- 首次运行会自动下载 AI 模型（约 400MB），之后会使用本地缓存
-- 模型下载需要网络连接，后续使用可离线
+- Windows EXE 已内置 AI 模型，下载即用，无需额外配置
+- 从源码运行时，首次匹配会自动下载 AI 模型（约 400MB）
 - 默认相似度阈值为 0.75，可根据实际需求调整（越高越严格）
 
 ## License
