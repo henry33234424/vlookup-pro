@@ -1,5 +1,6 @@
 """界面2：tksheet 结果表 + 导出"""
 
+import sys
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 
@@ -21,6 +22,16 @@ class PageResult(ctk.CTkFrame):
         self.state = state
         self.show_page = show_page
         self.sheet = None
+
+        # 平台相关字体和行高（参考 word_table_filler_v0.2）
+        if sys.platform == 'win32':
+            self._font_size = 18
+            self._row_height = 44
+            self._font_name = "Microsoft YaHei"
+        else:
+            self._font_size = 11
+            self._row_height = 25
+            self._font_name = "Arial"
 
         self._build_ui()
 
@@ -135,24 +146,30 @@ class PageResult(ctk.CTkFrame):
             )
         )
 
-        # 创建 tksheet（参考 word_table_filler 的配置方式）
+        # 创建 tksheet（参考 word_table_filler_v0.2 的配置方式）
         self.sheet = Sheet(
             self._sheet_frame,
             data=data,
             headers=headers,
             show_row_index=True,
             row_index_width=50,
-            font=("Arial", 12, "normal"),
-            header_font=("Arial", 12, "bold"),
-            default_row_height=28,
+            font=(self._font_name, self._font_size, "normal"),
+            header_font=(self._font_name, self._font_size, "bold"),
+            default_row_height=self._row_height,
         )
         self.sheet.pack(fill="both", expand=True)
 
-        # 设置固定列宽
-        self.sheet.column_width(column=0, width=350)
-        self.sheet.column_width(column=1, width=350)
-        self.sheet.column_width(column=2, width=100)
-        self.sheet.column_width(column=3, width=120)
+        # 平台相关列宽
+        if sys.platform == 'win32':
+            self.sheet.column_width(column=0, width=500)
+            self.sheet.column_width(column=1, width=500)
+            self.sheet.column_width(column=2, width=140)
+            self.sheet.column_width(column=3, width=160)
+        else:
+            self.sheet.column_width(column=0, width=350)
+            self.sheet.column_width(column=1, width=350)
+            self.sheet.column_width(column=2, width=100)
+            self.sheet.column_width(column=3, width=120)
 
         # 启用编辑和快捷键
         self.sheet.enable_bindings((
