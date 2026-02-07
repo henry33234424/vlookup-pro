@@ -44,13 +44,9 @@ jobs:
             src/main.py
         shell: cmd
 
-      - name: Compress artifact
-        run: Compress-Archive -Path dist/VLookupPro -DestinationPath VLookupPro-Windows.zip
-        shell: pwsh
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: VLookupPro-Windows
-          path: VLookupPro-Windows.zip
+          path: dist/VLookupPro/
           retention-days: 30
