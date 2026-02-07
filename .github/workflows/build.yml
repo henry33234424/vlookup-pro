@@ -1,0 +1,56 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build EXE with PyInstaller
+        run: |
+          pyinstaller --noconfirm ^
+            --onedir ^
+            --windowed ^
+            --name "VLookupPro" ^
+            --add-data "src;src" ^
+            --collect-data customtkinter ^
+            --collect-data tksheet ^
+            --collect-data sentence_transformers ^
+            --collect-data transformers ^
+            --hidden-import tiktoken ^
+            --hidden-import tiktoken_ext ^
+            --hidden-import tiktoken_ext.openai_public ^
+            --hidden-import sklearn.utils._cython_blas ^
+            --hidden-import sklearn.neighbors.typedefs ^
+            --hidden-import sklearn.neighbors._partition_nodes ^
+            src/main.py
+        shell: cmd
+
+      - name: Compress artifact
+        run: Compress-Archive -Path dist/VLookupPro -DestinationPath VLookupPro-Windows.zip
+        shell: pwsh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VLookupPro-Windows
+          path: VLookupPro-Windows.zip
+          retention-days: 30
